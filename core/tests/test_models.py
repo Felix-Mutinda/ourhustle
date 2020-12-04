@@ -134,7 +134,8 @@ class EducationTests(APITestCase):
 	"""
 	def setUp(self):
 		"""
-		Create underlying user and user profiles.
+		Create underlying user and user profiles,
+		and other variables.
 		"""
 		self.user = User.objects.create_user(
 			username='user',
@@ -144,24 +145,26 @@ class EducationTests(APITestCase):
 			user=self.user
 		)
 
+		self.school_name = 'My Recent School'
+		self.course_name = 'My Course Name'
+		self.start_date = timezone.now()
+		self.end_date = timezone.now() + timedelta(days=365)
+		self.grade_obtained = 'My Grade'
+
+
 	def test_education_instance_created(self):
 		"""
 		Tests if a provided education instance in saved
 		to db correctly.
 		"""
-		school_name = 'My Recent School'
-		course_name = 'My Course Name'
-		start_date = timezone.now()
-		end_date = timezone.now() + timedelta(days=365)
-		grade_obtained = 'My Grade'
 
 		Education.objects.create(
 			user_profile=self.user_profile,
-			school_name=school_name,
-			course_name=course_name,
-			start_date=start_date,
-			end_date=end_date,
-			grade_obtained=grade_obtained
+			school_name=self.school_name,
+			course_name=self.course_name,
+			start_date=self.start_date,
+			end_date=self.end_date,
+			grade_obtained=self.grade_obtained
 		)
 
 		education = Education.objects.get(pk=1)
@@ -170,27 +173,27 @@ class EducationTests(APITestCase):
 			education.user_profile,
 			"User profiles don't match.")
 		self.assertEqual(
-			school_name,
+			self.school_name,
 			education.school_name,
 			"School names don't match."
 		)
 		self.assertEqual(
-			course_name,
+			self.course_name,
 			education.course_name,
 			"Course names don't match."
 		)
 		self.assertEqual(
-			start_date,
+			self.start_date,
 			education.start_date,
 			"Start dates don't match"
 		)
 		self.assertEqual(
-			end_date,
+			self.end_date,
 			education.end_date,
 			"End dates don't match"
 		)
 		self.assertEqual(
-			grade_obtained,
+			self.grade_obtained,
 			education.grade_obtained,
 			"Grade obtained don't match"
 		)
@@ -200,15 +203,12 @@ class EducationTests(APITestCase):
 		Tests if a provided education instance (without the required
 		arguments) in saved to db correctly.
 		"""
-		school_name = 'My Recent School'
-		course_name = 'My Course Name'
-		start_date = timezone.now()
 
 		Education.objects.create(
 			user_profile=self.user_profile,
-			school_name=school_name,
-			course_name=course_name,
-			start_date=start_date,
+			school_name=self.school_name,
+			course_name=self.course_name,
+			start_date=self.start_date,
 		)
 
 		education = Education.objects.get(pk=1)
@@ -217,17 +217,55 @@ class EducationTests(APITestCase):
 			education.user_profile,
 			"User profiles don't match.")
 		self.assertEqual(
-			school_name,
+			self.school_name,
 			education.school_name,
 			"School names don't match."
 		)
 		self.assertEqual(
-			course_name,
+			self.course_name,
 			education.course_name,
 			"Course names don't match."
 		)
 		self.assertEqual(
-			start_date,
+			self.start_date,
 			education.start_date,
 			"Start dates don't match"
+		)
+
+	def test_can_create_multiple_education_instances_for_one_user_profile(self):
+		"""
+		Test if the Foreignkey (user_profile) works as expected.
+		"""
+		Education.objects.create(
+			user_profile=self.user_profile,
+			school_name=self.school_name,
+			course_name=self.course_name,
+			start_date=self.start_date,
+			end_date=self.end_date,
+			grade_obtained=self.grade_obtained
+		)
+		Education.objects.create(
+			user_profile=self.user_profile,
+			school_name=self.school_name,
+			course_name=self.course_name,
+			start_date=self.start_date,
+			end_date=self.end_date,
+			grade_obtained=self.grade_obtained
+		)
+
+		education_instances = Education.objects.all()
+		self.assertEqual(
+			2,
+			education_instances.count(),
+			'Expected 2 education instances, got {} instead.'.format(education_instances.count())
+		)
+		self.assertEqual(
+			education_instances.first().user_profile,
+			self.user_profile,
+			'User profiles don\'t match'
+		)
+		self.assertEqual(
+			education_instances.last().user_profile,
+			self.user_profile,
+			'User profiles don\'t match'
 		)
