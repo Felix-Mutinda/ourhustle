@@ -1,5 +1,3 @@
-import filecmp
-
 from django.contrib.auth import get_user_model
 from django.core.files.uploadedfile import SimpleUploadedFile
 
@@ -47,26 +45,36 @@ class CVResumeTests(APITestCase):
 			username='user',
 			password='pass'
 		)
+
 		self.user_profile = UserProfile.objects.create(
 			user=self.user
 		)
+
+		# Create a file like objects representing uploaded data
+		self.cv = SimpleUploadedFile('my_cv.pdf', b'Impresive CV')
+		self.resume = SimpleUploadedFile('my_resume.pdf', b'Impresive Resume')
+
+	def tearDown(self):
+		"""
+		Close open files.
+		"""
+		self.cv.close()
+		self.resume.close()
 
 	def test_cv_created(self):
 		"""
 		Test whether a cv is saved correctly.
 		"""
 
-		# Create a file like object representing uploaded data
-		# Then pass it to CVResume to save to db/disk
-		cv = SimpleUploadedFile('my_cv.pdf', b'Impresive CV')
+		# Pass a cv file object to CVResume to save to db/disk
 		CVResume.objects.create(
 			user_profile=self.user_profile,
-			cv=cv
+			cv=self.cv
 		)
-		cv.open() # Reopen the cv object - set seek to 0
+		self.cv.open() # Reopen the cv object - set seek to 0
 		cv_resume = CVResume.objects.get(pk=1)
 		self.assertEqual(
-			cv.read(), cv_resume.cv.read(), # Compare file like objects
+			self.cv.read(), cv_resume.cv.read(), # Compare file like objects
 			'Created cv does not match the provided one.'
 		)
 
@@ -75,17 +83,15 @@ class CVResumeTests(APITestCase):
 		Test whether a resume is saved correctly.
 		"""
 
-		# Create a file like object representing uploaded data
-		# Then pass it to CVResume to save to db/disk
-		resume = SimpleUploadedFile('my_resume.pdf', b'Impresive Resume')
+		# Pass a resume file object to CVResume to save to db/disk
 		CVResume.objects.create(
 			user_profile=self.user_profile,
-			resume=resume
+			resume=self.resume
 		)
-		resume.open() # Reopen the resume object - set seek to 0
+		self.resume.open() # Reopen the resume object - set seek to 0
 		cv_resume = CVResume.objects.get(pk=1)
 		self.assertEqual(
-			resume.read(), cv_resume.resume.read(), # Compare file like objects
+			self.resume.read(), cv_resume.resume.read(), # Compare file like objects
 			'Created reusme does not match the provided one.'
 		)
 
@@ -93,28 +99,26 @@ class CVResumeTests(APITestCase):
 		"""
 		Test whether both cv and resume are saved correctly.
 		"""
-		cv = SimpleUploadedFile('my_cv.pdf', b'Impresive CV')
-		resume = SimpleUploadedFile('my_resume.pdf', b'Impresive Resume')
 		CVResume.objects.create(
 			user_profile=self.user_profile,
-			cv=cv,
-			resume=resume
+			cv=self.cv,
+			resume=self.resume
 		)
 		# Set file positions to the begining
-		cv.open()
-		resume.open()
+		self.cv.open()
+		self.resume.open()
 
 		# Retrieve the saved object
 		cv_resume = CVResume.objects.get(pk=1)
 
 		# Check if cv match
 		self.assertEqual(
-			cv.read(), cv_resume.cv.read(), # Compare file like objects
+			self.cv.read(), cv_resume.cv.read(), # Compare file like objects
 			'Created cv does not match the provided one.'
 		)
 
 		# Check if resume match
 		self.assertEqual(
-			resume.read(), cv_resume.resume.read(), # Compare file like objects
+			self.resume.read(), cv_resume.resume.read(), # Compare file like objects
 			'Created reusme does not match the provided one.'
 		)
