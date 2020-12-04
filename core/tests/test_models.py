@@ -3,6 +3,7 @@ from datetime import timedelta
 from django.contrib.auth import get_user_model
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.utils import timezone
+from django.db import IntegrityError
 
 from rest_framework.test import APITestCase
 
@@ -269,3 +270,35 @@ class EducationTests(APITestCase):
 			self.user_profile,
 			'User profiles don\'t match'
 		)
+
+	def test_can_not_create_education_instance_without_user_profile(self):
+		"""
+		Tests if non nullable field user_profile throws an error
+		if not provided.
+		"""
+		with self.assertRaises(
+			IntegrityError,
+			msg = 'Should raise IntegrityError if user_profile not provided.'
+			):
+
+			Education.objects.create(
+				school_name=self.school_name,
+				course_name=self.course_name,
+				start_date=self.start_date,
+			)
+
+	def test_can_not_create_education_instance_without_start_date(self):
+		"""
+		Tests if non nullable field start_date throws an error
+		if not provided.
+		"""
+		with self.assertRaises(
+			IntegrityError,
+			msg = 'Should raise IntegrityError if start_date not provided.'
+			):
+
+			Education.objects.create(
+				user_profile=self.user_profile,
+				school_name=self.school_name,
+				course_name=self.course_name,
+			)
