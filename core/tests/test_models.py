@@ -11,8 +11,11 @@ from core.models import (
 	CVResume,
 	UserProfile,
 	Education,
-	Experience
+	Experience,
+	Organisation,
 )
+
+from .helpers import create_user_profile
 
 
 User = get_user_model()
@@ -367,3 +370,59 @@ class ExperienceTests(APITestCase):
 			experience_instance.job_description,
 			'job_descriptions don\'t match'
 		)
+
+
+class OrganisationTests(APITestCase):
+	"""
+	Test Organisation model.
+	"""
+	def setUp(self):
+		"""
+		Initialize variables.
+		"""
+		self.user_profile = create_user_profile()
+		self.logo = SimpleUploadedFile('logo.jpg', b'JPG IMAGE')
+		self.organisation_name = 'Organisation Name'
+		self.organisation_description = 'Organisation Description'
+		self.organisation = Organisation(
+			user_profile=self.user_profile,
+			logo=self.logo,
+			name=self.organisation_name,
+			description=self.organisation_description
+		)
+
+	def tearDown(self):
+		"""
+		Close open files.
+		"""
+		self.logo.close()
+
+	def test_organisation_created(self):
+		"""
+		Test an organisation instance is created correctly,
+		given all the data.
+		"""
+		self.organisation.save()
+		organisation_instance = Organisation.objects.get(pk=1)
+		self.assertEqual( # Compare file like objects(logos)
+			organisation_instance.logo.read(),
+			self.organisation.logo.read(),
+			'Organisation logo\'s don\'t match.'
+		)
+		self.assertEqual(
+			organisation_instance.user_profile,
+			self.organisation.user_profile,
+			'User profile\'s don\'t match.'
+		)
+		self.assertEqual(
+			organisation_instance.name,
+			self.organisation.name,
+			'Organisation name\'s don\'t match.'
+		)
+		self.assertEqual(
+			organisation_instance.description,
+			self.organisation.description,
+			'Organisation description\'s don\'t match.'
+		)
+
+

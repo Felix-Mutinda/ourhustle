@@ -49,3 +49,13 @@ class Experience(models.Model):
 	start_date = models.DateTimeField()
 	end_date = models.DateTimeField(null=True)
 	job_description = models.TextField(blank=True)
+
+
+class Organisation(models.Model):
+	"""
+	Organisation to associate 'posted' jobs with.
+	"""
+	user_profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+	logo = models.ImageField(upload_to='images/logos/%Y/%m/%d')
+	name = models.CharField(max_length=MAX_LENGTH)
+	description = models.TextField()
