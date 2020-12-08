@@ -17,6 +17,7 @@ from core.models import (
 	JobCategory,
 	Job,
 	JobComment,
+	AppliedJob,
 )
 
 from .helpers import (
@@ -652,4 +653,48 @@ class JobCommentTests(APITestCase):
 			job_comment_instance.heart,
 			self.heart,
 			"heart fields don't match."
+		)
+
+
+class AppliedJobTests(APITestCase):
+	"""
+	Test AppliedJob model.
+	"""
+
+	def setUp(self):
+		"""
+		Initialize variables.
+		"""
+
+		# Create a user
+		self.applied_by = create_user_profile(username='user2')
+		self.job = create_job()
+		self.status = 'Applied'
+		self.applied_job = AppliedJob(
+			applied_by=self.applied_by,
+			job=self.job,
+			status=self.status
+		)
+
+	def test_can_create_applied_job(self):
+		"""
+		Test if you can create AppliedJob instance, using
+		the necesary fields.
+		"""
+		self.applied_job.save()
+		applied_job_instance = AppliedJob.objects.get(pk=1)
+		self.assertEqual(
+			applied_job_instance.applied_by,
+			self.applied_by,
+			"applied_by fields don't match."
+		)
+		self.assertEqual(
+			applied_job_instance.job,
+			self.job,
+			"job fields don't match."
+		)
+		self.assertEqual(
+			applied_job_instance.status,
+			self.status,
+			"status fields don't match."
 		)

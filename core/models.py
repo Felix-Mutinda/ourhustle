@@ -100,3 +100,13 @@ class JobComment(models.Model):
 	job = models.ForeignKey(Job, on_delete=models.CASCADE)
 	text = models.CharField(max_length=MAX_LENGTH)
 	heart = models.BooleanField(default=False)
+
+
+class AppliedJob(models.Model):
+	"""
+	Jobs applied by a user.
+	"""
+	applied_by = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+	job = models.ForeignKey(Job, on_delete=models.CASCADE)
+	date_applied = models.DateTimeField(auto_now_add=True)
+	status = models.CharField(max_length=MAX_LENGTH, default='Applied')
