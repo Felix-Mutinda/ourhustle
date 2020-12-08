@@ -23,8 +23,8 @@ class CVResume(models.Model):
 	Storage for uploaded static CV/Resume.
 	"""
 	user_profile = models.OneToOneField(UserProfile, on_delete=models.CASCADE)
-	cv = models.FileField(upload_to='cvs/%Y/%m/%d/')
-	resume = models.FileField(upload_to='resumes/%Y/%m/%d/')
+	cv = models.FileField(upload_to='cvs/%Y/%m/%d/', null=True, blank=True)
+	resume = models.FileField(upload_to='resumes/%Y/%m/%d/', null=True, blank=True)
 
 
 class Education(models.Model):
@@ -35,7 +35,7 @@ class Education(models.Model):
 	school_name = models.CharField(max_length=MAX_LENGTH)
 	course_name = models.CharField(max_length=MAX_LENGTH)
 	start_date = models.DateTimeField()
-	end_date = models.DateTimeField(null=True)
+	end_date = models.DateTimeField(null=True, blank=True)
 	grade_obtained = models.CharField(max_length=MAX_LENGTH, blank=True)
 
 
