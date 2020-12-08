@@ -47,7 +47,7 @@ class Experience(models.Model):
 	job_title = models.CharField(max_length=MAX_LENGTH)
 	organisation_name = models.CharField(max_length=MAX_LENGTH)
 	start_date = models.DateTimeField()
-	end_date = models.DateTimeField(null=True)
+	end_date = models.DateTimeField(null=True, blank=True)
 	job_description = models.TextField(blank=True)
 
 
