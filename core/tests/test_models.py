@@ -16,9 +16,13 @@ from core.models import (
 	Skill,
 	JobCategory,
 	Job,
+	JobComment,
 )
 
-from .helpers import create_user_profile
+from .helpers import (
+	create_user_profile,
+	create_job,
+)
 
 
 User = get_user_model()
@@ -599,4 +603,53 @@ class JobTests(APITestCase):
 			job_instance.location,
 			self.location,
 			"location fields don't match."
+		)
+
+
+class JobCommentTests(APITestCase):
+	"""
+	Test JobComment model.
+	"""
+	def setUp(self):
+		"""
+		Initialize variables.
+		"""
+
+		# Create a user for the comment.
+		self.created_by = create_user_profile(username='user2')
+		self.job = create_job()
+		self.text = 'Comment'
+		self.heart = True
+		self.job_comment = JobComment(
+			created_by=self.created_by,
+			job=self.job,
+			text=self.text,
+			heart=self.heart
+		)
+
+	def test_can_create_job_comment(self):
+		"""
+		Test can create a job comment with all fields given.
+		"""
+		self.job_comment.save()
+		job_comment_instance = JobComment.objects.get(pk=1)
+		self.assertEqual(
+			job_comment_instance.created_by,
+			self.created_by,
+			"created_by fields don't match."
+		)
+		self.assertEqual(
+			job_comment_instance.job,
+			self.job,
+			"job fields don't match."
+		)
+		self.assertEqual(
+			job_comment_instance.text,
+			self.text,
+			"text fields don't match."
+		)
+		self.assertEqual(
+			job_comment_instance.heart,
+			self.heart,
+			"heart fields don't match."
 		)

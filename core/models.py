@@ -90,3 +90,13 @@ class Job(models.Model):
 	employment_term = models.CharField(max_length=MAX_LENGTH, blank=True)
 	seniority_level = models.CharField(max_length=MAX_LENGTH, blank=True)
 	location = models.CharField(max_length=MAX_LENGTH, blank=True)
+
+
+class JobComment(models.Model):
+	"""
+	Comments for a given job.
+	"""
+	created_by = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+	job = models.ForeignKey(Job, on_delete=models.CASCADE)
+	text = models.CharField(max_length=MAX_LENGTH)
+	heart = models.BooleanField(default=False)
