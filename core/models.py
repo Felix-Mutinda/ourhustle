@@ -56,7 +56,7 @@ class Organisation(models.Model):
 	Organisation to associate 'posted' jobs with.
 	"""
 	user_profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
-	logo = models.ImageField(upload_to='images/logos/%Y/%m/%d')
+	logo = models.ImageField(upload_to='images/logos/%Y/%m/%d', null=True, blank=True)
 	name = models.CharField(max_length=MAX_LENGTH)
 	description = models.TextField()
 
