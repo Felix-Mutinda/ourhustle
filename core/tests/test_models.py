@@ -13,6 +13,7 @@ from core.models import (
 	Education,
 	Experience,
 	Organisation,
+	Skill,
 )
 
 from .helpers import create_user_profile
@@ -426,3 +427,49 @@ class OrganisationTests(APITestCase):
 		)
 
 
+class SkillsTest(APITestCase):
+	"""
+	Test skill model.
+	"""
+	def setUp(self):
+		"""
+		Initialize variables.
+		"""
+		self.user_profile = create_user_profile()
+		self.tag = 'Public Speaking'
+		self.skill = Skill(
+			user_profile=self.user_profile,
+			tag=self.tag
+		)
+
+	def test_skill_created(self):
+		"""
+		Test if a skill instance is created, given
+		all the needed data.
+		"""
+		self.skill.save()
+		skill_instance = Skill.objects.get(pk=1)
+		self.assertEqual(
+			skill_instance.user_profile,
+			self.skill.user_profile,
+			'User profile\'s don\'t match.'
+		)
+		self.assertEqual(
+			skill_instance.tag,
+			self.tag,
+			'Skill tag\'s don\'t match.'
+		)
+
+	def test_can_create_many_skills(self):
+		"""
+		Test if a user can create many skills.
+		"""
+		skill2 = self.skill
+		skill2.tag = 'Test Driven Development'
+		self.skill.save()
+		skill2.save()
+		self.assertEqual(
+			Skill.objects.first().user_profile,
+			Skill.objects.last().user_profile,
+			'Skill instances don\'t belong to the same user.'
+		)

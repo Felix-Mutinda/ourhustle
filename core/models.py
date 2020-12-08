@@ -59,3 +59,11 @@ class Organisation(models.Model):
 	logo = models.ImageField(upload_to='images/logos/%Y/%m/%d')
 	name = models.CharField(max_length=MAX_LENGTH)
 	description = models.TextField()
+
+
+class Skill(models.Model):
+	"""
+	User skills for their dynamic CV/Resume.
+	"""
+	user_profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+	tag = models.CharField(max_length=MAX_LENGTH)
