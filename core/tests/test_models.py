@@ -14,6 +14,7 @@ from core.models import (
 	Experience,
 	Organisation,
 	Skill,
+	JobCategory,
 )
 
 from .helpers import create_user_profile
@@ -473,3 +474,32 @@ class SkillsTest(APITestCase):
 			Skill.objects.last().user_profile,
 			'Skill instances don\'t belong to the same user.'
 		)
+
+
+class JobCategoryTests(APITestCase):
+	"""
+	Test JobCategory model.
+	"""
+	def setUp(self):
+		self.category = 'Engineering'
+		self.job_category = JobCategory(
+			category=self.category,
+		)
+
+	def test_can_create_job_category(self):
+		"""
+		Test if a job category can be created.
+		"""
+		self.job_category.save()
+		job_category_instance = JobCategory.objects.get(pk=1)
+		self.assertEqual(
+			self.category,
+			job_category_instance.category,
+			"Job categories don't match."
+		)
+
+class JobTests(APITestCase):
+	"""
+	Test Job model.
+	"""
+	pass

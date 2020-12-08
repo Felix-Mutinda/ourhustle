@@ -67,3 +67,10 @@ class Skill(models.Model):
 	"""
 	user_profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
 	tag = models.CharField(max_length=MAX_LENGTH)
+
+
+class JobCategory(models.Model):
+	"""
+	Job category.
+	"""
+	category = models.CharField(max_length=MAX_LENGTH)
