@@ -10,7 +10,8 @@ from rest_framework.test import APITestCase
 from core.models import (
 	CVResume,
 	UserProfile,
-	Education
+	Education,
+	Experience
 )
 
 
@@ -302,3 +303,67 @@ class EducationTests(APITestCase):
 				school_name=self.school_name,
 				course_name=self.course_name,
 			)
+
+
+class ExperienceTests(APITestCase):
+	"""
+	Test Experience model.
+	"""
+	def setUp(self):
+		self.user = User.objects.create_user(
+			username='user',
+			password='pass'
+		)
+		self.user_profile = UserProfile.objects.create(
+			user=self.user
+		)
+		self.job_title = 'Job Title'
+		self.organisation_name = 'Organisation Name'
+		self.start_date = timezone.now() - timedelta(days=365*2)
+		self.end_date = timezone.now() - timedelta(days=30)
+		self.job_description = 'Job Description'
+
+	def test_experience_created(self):
+		"""
+		Tests if an experience instance is created when all
+		fields are provided.
+		"""
+		Experience.objects.create(
+			user_profile=self.user_profile,
+			job_title=self.job_title,
+			organisation_name=self.organisation_name,
+			start_date=self.start_date,
+			end_date=self.end_date,
+			job_description=self.job_description
+		)
+		experience_instance = Experience.objects.get(pk=1)
+		self.assertEqual(
+			self.user_profile,
+			experience_instance.user_profile,
+			'user_profiles don\'t match'
+		)
+		self.assertEqual(
+			self.job_title,
+			experience_instance.job_title,
+			'job_titles don\'t match'
+		)
+		self.assertEqual(
+			self.organisation_name,
+			experience_instance.organisation_name,
+			'organisation_names don\'t match'
+		)
+		self.assertEqual(
+			self.start_date,
+			experience_instance.start_date,
+			'start_dates don\'t match'
+		)
+		self.assertEqual(
+			self.end_date,
+			experience_instance.end_date,
+			'end_dates don\'t match'
+		)
+		self.assertEqual(
+			self.job_description,
+			experience_instance.job_description,
+			'job_descriptions don\'t match'
+		)

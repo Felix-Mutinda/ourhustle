@@ -3,7 +3,7 @@ from django.contrib.auth import get_user_model
 
 
 User = get_user_model()
-
+MAX_LENGTH = 255
 
 class UserProfile(models.Model):
 	"""
@@ -19,15 +19,33 @@ class UserProfile(models.Model):
 
 
 class CVResume(models.Model):
+	"""
+	Storage for uploaded static CV/Resume.
+	"""
 	user_profile = models.OneToOneField(UserProfile, on_delete=models.CASCADE)
 	cv = models.FileField(upload_to='cvs/%Y/%m/%d/')
 	resume = models.FileField(upload_to='resumes/%Y/%m/%d/')
 
 
 class Education(models.Model):
+	"""
+	User education in their CV/Resume.
+	"""
 	user_profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
-	school_name = models.CharField(max_length=255)
-	course_name = models.CharField(max_length=255)
+	school_name = models.CharField(max_length=MAX_LENGTH)
+	course_name = models.CharField(max_length=MAX_LENGTH)
 	start_date = models.DateTimeField()
 	end_date = models.DateTimeField(null=True)
-	grade_obtained = models.CharField(max_length=255, blank=True)
+	grade_obtained = models.CharField(max_length=MAX_LENGTH, blank=True)
+
+
+class Experience(models.Model):
+	"""
+	User experience(previous work) in their dynamic CV/Resume.
+	"""
+	user_profile = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+	job_title = models.CharField(max_length=MAX_LENGTH)
+	organisation_name = models.CharField(max_length=MAX_LENGTH)
+	start_date = models.DateTimeField()
+	end_date = models.DateTimeField(null=True)
+	job_description = models.TextField(blank=True)
