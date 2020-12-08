@@ -74,3 +74,19 @@ class JobCategory(models.Model):
 	Job category.
 	"""
 	category = models.CharField(max_length=MAX_LENGTH)
+
+class Job(models.Model):
+	"""
+	Represents a job item/object.
+	"""
+	created_by = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+	organisation = models.ForeignKey(Organisation, on_delete=models.CASCADE)
+	category = models.ForeignKey(JobCategory, on_delete=models.CASCADE)
+	title = models.CharField(max_length=MAX_LENGTH)
+	description = models.TextField()
+	allow_comments = models.BooleanField(default=True)
+	start_accepting_applications_at = models.DateTimeField()
+	stop_accepting_applications_at = models.DateTimeField()
+	employment_term = models.CharField(max_length=MAX_LENGTH, blank=True)
+	seniority_level = models.CharField(max_length=MAX_LENGTH, blank=True)
+	location = models.CharField(max_length=MAX_LENGTH, blank=True)

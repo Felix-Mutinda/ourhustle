@@ -15,6 +15,7 @@ from core.models import (
 	Organisation,
 	Skill,
 	JobCategory,
+	Job,
 )
 
 from .helpers import create_user_profile
@@ -502,4 +503,100 @@ class JobTests(APITestCase):
 	"""
 	Test Job model.
 	"""
-	pass
+	def setUp(self):
+		"""
+		Initialize variables.
+		"""
+		self.created_by = create_user_profile()
+		self.organisation = Organisation.objects.create(
+			user_profile=self.created_by,
+			name='Big Company',
+			description='We are everywhere!'
+		)
+		self.category = JobCategory.objects.create(
+			category='Engineering'
+		)
+		self.title = 'Software Engineering Lead'
+		self.description = 'We are excited to ...'
+		self.allow_comments = True
+		self.start_accepting_applications_at = timezone.now()
+		self.stop_accepting_applications_at = timezone.now() + timedelta(days=30)
+		self.employment_term = 'Full Term'
+		self.seniority_level = 'Mid Level'
+		self.location = 'Nairobi'
+		self.job = Job(
+			created_by=self.created_by,
+			organisation=self.organisation,
+			category=self.category,
+			title=self.title,
+			description=self.description,
+			allow_comments=self.allow_comments,
+			start_accepting_applications_at=self.start_accepting_applications_at,
+			stop_accepting_applications_at=self.stop_accepting_applications_at,
+			employment_term=self.employment_term,
+			seniority_level=self.seniority_level,
+			location=self.location
+		)
+
+	def test_can_create_job(self):
+		"""
+		Test if a job instance is created successfully,
+		with all fields provided.
+		"""
+		self.job.save()
+		job_instance = Job.objects.get(pk=1)
+		self.assertEqual(
+			job_instance.created_by,
+			self.created_by,
+			"created_by fields don't match."
+		)
+		self.assertEqual(
+			job_instance.organisation,
+			self.organisation,
+			"organisation fields don't match."
+		)
+		self.assertEqual(
+			job_instance.category,
+			self.category,
+			"category fields don't match."
+		)
+		self.assertEqual(
+			job_instance.title,
+			self.title,
+			"title fields don't match."
+		)
+		self.assertEqual(
+			job_instance.description,
+			self.description,
+			"description fields don't match."
+		)
+		self.assertEqual(
+			job_instance.allow_comments,
+			self.allow_comments,
+			"allow_comments fields don't match."
+		)
+		self.assertEqual(
+			job_instance.start_accepting_applications_at,
+			self.start_accepting_applications_at,
+			"start_accepting_applications_at fields don't match."
+		)
+		self.assertEqual(
+			job_instance.stop_accepting_applications_at,
+			self.stop_accepting_applications_at,
+			"stop_accepting_applications_at fields don't match."
+		)
+		self.assertEqual(
+			job_instance.employment_term,
+			self.employment_term,
+			"employment_term fields don't match."
+		)
+		self.assertEqual(
+			job_instance.seniority_level,
+			self.seniority_level,
+			"seniority_level fields don't match."
+		)
+		self.assertEqual(
+			job_instance.location,
+			self.location,
+			"location fields don't match."
+		)
