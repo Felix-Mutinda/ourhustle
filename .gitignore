@@ -8,4 +8,5 @@ staticfiles/
 **__pycache__**
 
 db.sqlite3
+backup_db.sqlite3
 

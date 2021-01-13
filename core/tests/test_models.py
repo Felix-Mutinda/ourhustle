@@ -21,7 +21,7 @@ from core.models import (
 )
 
 from .helpers import (
-	create_user_profile,
+	create_user,
 	create_job,
 )
 
@@ -29,27 +29,27 @@ from .helpers import (
 User = get_user_model()
 
 
-class UserProfileTests(APITestCase):
+class UserTests(APITestCase):
 	"""
-	Tests UserProfile modle.
+	Tests User model.
 	"""
 	def setUp(self):
-		self.user = User.objects.create_user(
-				username='user',
-				password='pass'
-			)
+		self.user = create_user()
 
 	def test_user_profile_created(self):
 		"""
 		Test if a user profile is created successfully.
 		"""
-		user_profile = UserProfile.objects.create(
-			user = self.user
+		self.assertTrue(
+			hasattr(self.user, 'profile'),
+			"User profile does not exist."
 		)
-		self.assertEqual(
-			user_profile,
-			self.user.profile,
-			'User profiles don\'t match'
+
+		self.assertTrue(
+			isinstance(self.user.profile, UserProfile),
+			"User profile is of type {}, expected to be of type {}".format(
+				type(self.user.profile), type(UserProfile)
+			)
 		)
 
 class CVResumeTests(APITestCase):
@@ -58,14 +58,7 @@ class CVResumeTests(APITestCase):
 	"""
 
 	def setUp(self):
-		self.user = User.objects.create_user(
-			username='user',
-			password='pass'
-		)
-
-		self.user_profile = UserProfile.objects.create(
-			user=self.user
-		)
+		self.user = create_user()
 
 		# Create a file like objects representing uploaded data
 		self.cv = SimpleUploadedFile('my_cv.pdf', b'Impresive CV')
@@ -85,7 +78,7 @@ class CVResumeTests(APITestCase):
 
 		# Pass a cv file object to CVResume to save to db/disk
 		CVResume.objects.create(
-			user_profile=self.user_profile,
+			user=self.user,
 			cv=self.cv
 		)
 		self.cv.open() # Reopen the cv object - set seek to 0
@@ -102,7 +95,7 @@ class CVResumeTests(APITestCase):
 
 		# Pass a resume file object to CVResume to save to db/disk
 		CVResume.objects.create(
-			user_profile=self.user_profile,
+			user=self.user,
 			resume=self.resume
 		)
 		self.resume.open() # Reopen the resume object - set seek to 0
@@ -117,7 +110,7 @@ class CVResumeTests(APITestCase):
 		Test whether both cv and resume are saved correctly.
 		"""
 		CVResume.objects.create(
-			user_profile=self.user_profile,
+			user=self.user,
 			cv=self.cv,
 			resume=self.resume
 		)
@@ -150,13 +143,7 @@ class EducationTests(APITestCase):
 		Create underlying user and user profiles,
 		and other variables.
 		"""
-		self.user = User.objects.create_user(
-			username='user',
-			password='pass'
-		)
-		self.user_profile = UserProfile.objects.create(
-			user=self.user
-		)
+		self.user = create_user()
 
 		self.school_name = 'My Recent School'
 		self.course_name = 'My Course Name'
@@ -172,7 +159,7 @@ class EducationTests(APITestCase):
 		"""
 
 		Education.objects.create(
-			user_profile=self.user_profile,
+			user=self.user,
 			school_name=self.school_name,
 			course_name=self.course_name,
 			start_date=self.start_date,
@@ -182,9 +169,9 @@ class EducationTests(APITestCase):
 
 		education = Education.objects.get(pk=1)
 		self.assertEqual(
-			self.user_profile,
-			education.user_profile,
-			"User profiles don't match.")
+			self.user,
+			education.user,
+			"Users don't match.")
 		self.assertEqual(
 			self.school_name,
 			education.school_name,
@@ -218,7 +205,7 @@ class EducationTests(APITestCase):
 		"""
 
 		Education.objects.create(
-			user_profile=self.user_profile,
+			user=self.user,
 			school_name=self.school_name,
 			course_name=self.course_name,
 			start_date=self.start_date,
@@ -226,9 +213,10 @@ class EducationTests(APITestCase):
 
 		education = Education.objects.get(pk=1)
 		self.assertEqual(
-			self.user_profile,
-			education.user_profile,
-			"User profiles don't match.")
+			self.user,
+			education.user,
+			"Users don't match.")
+
 		self.assertEqual(
 			self.school_name,
 			education.school_name,
@@ -245,12 +233,12 @@ class EducationTests(APITestCase):
 			"Start dates don't match"
 		)
 
-	def test_can_create_multiple_education_instances_for_one_user_profile(self):
+	def test_can_create_multiple_education_instances_for_one_user(self):
 		"""
-		Test if the Foreignkey (user_profile) works as expected.
+		Test if the Foreignkey (usser) works as expected.
 		"""
 		Education.objects.create(
-			user_profile=self.user_profile,
+			user=self.user,
 			school_name=self.school_name,
 			course_name=self.course_name,
 			start_date=self.start_date,
@@ -258,7 +246,7 @@ class EducationTests(APITestCase):
 			grade_obtained=self.grade_obtained
 		)
 		Education.objects.create(
-			user_profile=self.user_profile,
+			user=self.user,
 			school_name=self.school_name,
 			course_name=self.course_name,
 			start_date=self.start_date,
@@ -273,24 +261,24 @@ class EducationTests(APITestCase):
 			'Expected 2 education instances, got {} instead.'.format(education_instances.count())
 		)
 		self.assertEqual(
-			education_instances.first().user_profile,
-			self.user_profile,
-			'User profiles don\'t match'
+			education_instances.first().user,
+			self.user,
+			'Users don\'t match'
 		)
 		self.assertEqual(
-			education_instances.last().user_profile,
-			self.user_profile,
-			'User profiles don\'t match'
+			education_instances.last().user,
+			self.user,
+			'Users don\'t match'
 		)
 
-	def test_can_not_create_education_instance_without_user_profile(self):
+	def test_can_not_create_education_instance_without_user(self):
 		"""
-		Tests if non nullable field user_profile throws an error
+		Tests if non nullable field user throws an error
 		if not provided.
 		"""
 		with self.assertRaises(
 			IntegrityError,
-			msg = 'Should raise IntegrityError if user_profile not provided.'
+			msg = 'Should raise IntegrityError if user not provided.'
 			):
 
 			Education.objects.create(
@@ -310,7 +298,7 @@ class EducationTests(APITestCase):
 			):
 
 			Education.objects.create(
-				user_profile=self.user_profile,
+				user=self.user,
 				school_name=self.school_name,
 				course_name=self.course_name,
 			)
@@ -321,13 +309,7 @@ class ExperienceTests(APITestCase):
 	Test Experience model.
 	"""
 	def setUp(self):
-		self.user = User.objects.create_user(
-			username='user',
-			password='pass'
-		)
-		self.user_profile = UserProfile.objects.create(
-			user=self.user
-		)
+		self.user = create_user()
 		self.job_title = 'Job Title'
 		self.organisation_name = 'Organisation Name'
 		self.start_date = timezone.now() - timedelta(days=365*2)
@@ -340,7 +322,7 @@ class ExperienceTests(APITestCase):
 		fields are provided.
 		"""
 		Experience.objects.create(
-			user_profile=self.user_profile,
+			user=self.user,
 			job_title=self.job_title,
 			organisation_name=self.organisation_name,
 			start_date=self.start_date,
@@ -349,9 +331,9 @@ class ExperienceTests(APITestCase):
 		)
 		experience_instance = Experience.objects.get(pk=1)
 		self.assertEqual(
-			self.user_profile,
-			experience_instance.user_profile,
-			'user_profiles don\'t match'
+			self.user,
+			experience_instance.user,
+			'users don\'t match'
 		)
 		self.assertEqual(
 			self.job_title,
@@ -388,12 +370,12 @@ class OrganisationTests(APITestCase):
 		"""
 		Initialize variables.
 		"""
-		self.user_profile = create_user_profile()
+		self.user = create_user()
 		self.logo = SimpleUploadedFile('logo.jpg', b'JPG IMAGE')
 		self.organisation_name = 'Organisation Name'
 		self.organisation_description = 'Organisation Description'
 		self.organisation = Organisation(
-			user_profile=self.user_profile,
+			user=self.user,
 			logo=self.logo,
 			name=self.organisation_name,
 			description=self.organisation_description
@@ -418,9 +400,9 @@ class OrganisationTests(APITestCase):
 			'Organisation logo\'s don\'t match.'
 		)
 		self.assertEqual(
-			organisation_instance.user_profile,
-			self.organisation.user_profile,
-			'User profile\'s don\'t match.'
+			organisation_instance.user,
+			self.organisation.user,
+			'Users don\'t match.'
 		)
 		self.assertEqual(
 			organisation_instance.name,
@@ -442,10 +424,10 @@ class SkillsTest(APITestCase):
 		"""
 		Initialize variables.
 		"""
-		self.user_profile = create_user_profile()
+		self.user = create_user()
 		self.tag = 'Public Speaking'
 		self.skill = Skill(
-			user_profile=self.user_profile,
+			user=self.user,
 			tag=self.tag
 		)
 
@@ -457,9 +439,9 @@ class SkillsTest(APITestCase):
 		self.skill.save()
 		skill_instance = Skill.objects.get(pk=1)
 		self.assertEqual(
-			skill_instance.user_profile,
-			self.skill.user_profile,
-			'User profile\'s don\'t match.'
+			skill_instance.user,
+			self.skill.user,
+			'User don\'t match.'
 		)
 		self.assertEqual(
 			skill_instance.tag,
@@ -476,8 +458,8 @@ class SkillsTest(APITestCase):
 		self.skill.save()
 		skill2.save()
 		self.assertEqual(
-			Skill.objects.first().user_profile,
-			Skill.objects.last().user_profile,
+			Skill.objects.first().user,
+			Skill.objects.last().user,
 			'Skill instances don\'t belong to the same user.'
 		)
 
@@ -512,9 +494,9 @@ class JobTests(APITestCase):
 		"""
 		Initialize variables.
 		"""
-		self.created_by = create_user_profile()
+		self.created_by = create_user()
 		self.organisation = Organisation.objects.create(
-			user_profile=self.created_by,
+			user=self.created_by,
 			name='Big Company',
 			description='We are everywhere!'
 		)
@@ -617,7 +599,7 @@ class JobCommentTests(APITestCase):
 		"""
 
 		# Create a user for the comment.
-		self.created_by = create_user_profile(username='user2')
+		self.created_by = create_user(username='user2')
 		self.job = create_job()
 		self.text = 'Comment'
 		self.heart = True
@@ -667,7 +649,7 @@ class AppliedJobTests(APITestCase):
 		"""
 
 		# Create a user
-		self.applied_by = create_user_profile(username='user2')
+		self.applied_by = create_user(username='user2')
 		self.job = create_job()
 		self.status = 'Applied'
 		self.applied_job = AppliedJob(

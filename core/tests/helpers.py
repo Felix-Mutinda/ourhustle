@@ -11,28 +11,24 @@ from core.models import (
 )
 
 
-def create_user_profile(username=None):
+def create_user(username=None):
 	"""
-	Helper to create a user and a corresponding
-	user_profile.
+	Helper to create a user instance.
 	"""
-	user = User.objects.create_user(
+	user = UserProfile.objects.create_user(
 		username=username if username else 'user',
 		password='pass'
 	)
 
-	return UserProfile.objects.create(
-		user=user
-	)
-
+	return user
 
 def create_job():
 	"""
 	Helper to create a job.
 	"""
-	created_by = create_user_profile()
+	created_by = create_user()
 	organisation = Organisation.objects.create(
-		user_profile=created_by,
+		user=created_by,
 		name='Big Company',
 		description='We are everywhere!'
 	)
